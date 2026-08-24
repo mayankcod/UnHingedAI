@@ -14,6 +14,7 @@ export default function Home() {
   const [loadingChats, setLoadingChats] = useState(false);
   const [historyError, setHistoryError] = useState('');
   const [guestMode, setGuestMode] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const textareaRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -48,6 +49,7 @@ export default function Home() {
   const loadChat = async (chatId) => {
     if (isLoading || chatId === currentChatId) return;
     setHistoryError('');
+    setIsSidebarOpen(false);
     try {
       const res = await fetch('/api/history', {
         method: 'PATCH',
@@ -83,6 +85,7 @@ export default function Home() {
   const startNewChat = () => {
     setHistory([]);
     setCurrentChatId(null);
+    setIsSidebarOpen(false);
     textareaRef.current?.focus();
   };
 
@@ -214,11 +217,29 @@ export default function Home() {
   // ─── Main Chat UI ─────────────────────────────────────────────────────────────
   return (
     <main className="shell">
-      <aside className="side">
-        <a className="brand" href="/">
-          <span className="spark">𖦹</span>
-          <span>unhinged<br /><i>ai</i></span>
-        </a>
+      {/* Mobile Backdrop for Sliding Drawer */}
+      <div
+        className={`sidebar-backdrop ${isSidebarOpen ? 'visible' : ''}`}
+        onClick={() => setIsSidebarOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* Sidebar / Sliding Panel */}
+      <aside className={`side ${isSidebarOpen ? 'open' : ''}`}>
+        <div className="side-header">
+          <a className="brand" href="/" onClick={() => setIsSidebarOpen(false)}>
+            <span className="spark">𖦹</span>
+            <span>unhinged<br /><i>ai</i></span>
+          </a>
+          <button
+            className="side-close-btn"
+            onClick={() => setIsSidebarOpen(false)}
+            aria-label="Close sidebar"
+            title="Close sidebar"
+          >
+            ✕
+          </button>
+        </div>
 
         <button className="new-chat" onClick={startNewChat}>
           <span>＋</span> New catastrophe
@@ -252,8 +273,6 @@ export default function Home() {
         </div>
 
         <div className="side-bottom">
-
-
           {/* User info + Logout */}
           <div className="user-info">
             {session?.user?.image && (
@@ -275,8 +294,29 @@ export default function Home() {
 
       <section className="chat-area">
         <header>
-          <div className="status"><span></span> existentially online</div>
-          <button className="clear" onClick={startNewChat}>Clear chat</button>
+          <div className="header-left">
+            <button
+              className="menu-toggle"
+              onClick={() => setIsSidebarOpen(true)}
+              aria-label="Open chat history menu"
+              title="Chat History"
+            >
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+            <div className="status desktop-only"><span></span> existentially online</div>
+          </div>
+
+          <div className="header-brand mobile-only">
+            <span className="spark">𖦹</span>
+            <span>unhinged <i>ai</i></span>
+          </div>
+
+          <div className="header-right">
+            <button className="new-chat-icon-btn mobile-only" onClick={startNewChat} title="New catastrophe" aria-label="New catastrophe">＋</button>
+            <button className="clear desktop-only" onClick={startNewChat}>Clear chat</button>
+          </div>
         </header>
 
         <div className="messages" id="messages">
