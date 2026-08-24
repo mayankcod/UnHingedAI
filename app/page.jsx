@@ -375,7 +375,7 @@ export default function Home() {
             autoFocus
           />
           <button className="send" aria-label="Send message" type="submit" disabled={isLoading}>↑</button>
-          <span className="hint">Enter to send · Shift + Enter for new line</span>
+          
         </form>
       </section>
     </main>
